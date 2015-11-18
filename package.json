@@ -1,0 +1,18 @@
+{
+  "name": "syno",
+  "version": "0.1.0",
+  "description": "A Graph DB for humans",
+  "repository": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Alon Niv",
+  "license": "ISC",
+  "dependencies": {
+    "bson": "^0.4.19",
+    "graphlib": "^1.0.7",
+    "lodash": "^3.10.1",
+    "node-uuid": "^1.4.3"
+  }
+}
