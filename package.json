@@ -1,6 +1,6 @@
 {
   "name": "synograph",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A Graph DB for humans",
   "repository": "https://github.com/oakfang/SynoGraph",
   "main": "index.js",
