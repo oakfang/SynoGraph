@@ -1,13 +1,13 @@
 {
-  "name": "syno",
+  "name": "synograph",
   "version": "0.1.0",
   "description": "A Graph DB for humans",
-  "repository": "",
+  "repository": "https://github.com/oakfang/SynoGraph",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Alon Niv",
+  "author": "oakfang",
   "license": "ISC",
   "dependencies": {
     "bson": "^0.4.19",
