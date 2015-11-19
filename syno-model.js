@@ -2,7 +2,7 @@
 
 const _ = require('lodash');
 
-module.exports = function registerNodeType(synoGraph, nodeType, properties) {
+function SynoModel(synoGraph, nodeType, properties) {
   properties = properties || {};
   properties.connections = properties.connections || [];
   properties.properties = new Set(properties.properties || []);
@@ -115,4 +115,16 @@ module.exports = function registerNodeType(synoGraph, nodeType, properties) {
     }
   };
   return Factory;
+}
+
+
+function modelsFactory(models) {
+  return function (graph) {
+    return _.mapValues(models, (props, type) => SynoModel(graph, type, props));
+  }
+}
+
+module.exports = {
+  SynoModel,
+  modelsFactory
 }

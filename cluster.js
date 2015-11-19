@@ -78,7 +78,7 @@ class Cluster {
   }
 }
 
-Cluster.MAX_CLUSTER_SIZE = 10;
+Cluster.MAX_CLUSTER_SIZE = 1000;
 
 function createUrCluster(graph, clusters) {
   clusters = clusters || [];

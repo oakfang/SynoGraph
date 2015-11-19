@@ -68,20 +68,21 @@ Get props of all edges from nodeId `source` to nodeId `dest`, including their ty
 ### SynoModel API
 ```js
 // models.js
-const Model = require('synograph').SynoModel;
+const modelsFactory = require('synograph').modelsFactory;
 
-module.exports = function (g) {
-  const Person = Model(g, 'Person', {
+module.exports = modelsFactory({
+  Person: {
     properties: 'name age'.split(' ')
     connections: [
       {name: 'friends', type: 'Person', collection: true, mutual: true}
     ],
-    hasFriends: {
-      return this.friends.get().length > 0;
+    dynamicProperties: {
+      hasFriends(): {
+        return this.friends.get().length > 0;
+      }
     }
-  });
-  return {Person};
-};
+  }
+})
 
 // app.js
 const SynoGraph = require('synograph').SynoGraph;
