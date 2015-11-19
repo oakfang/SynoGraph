@@ -190,7 +190,7 @@ throw err;
 SynoGraph supports clusters of data, which work much like a SQL-DB index.
 The clusters work around the concept of large clusters of connected nodes,
 and on querying, the graph will use threads (yes, real ones) to search across the
-clusters. A cluster's `MAX_CLUSTER_SIZE` of nodes is `1000`, and its minimum of root
+clusters. A cluster's `MAX_CLUSTER_SIZE` of nodes is `500`, and its minimum of root
 connections is `4` (otherwise, the remaining nodes are considered stranded, and go into the Ur cluster, below).
 
 The Ur cluster is a special cluster that consists of stranded and disconnected nodes.
@@ -203,7 +203,7 @@ Using clusters is costly because:
 - Actually clusterizing the graph might take time, as it takes up to O(v^2) actions,
 which is why it isn't part of the normal persistence procedure.
 
-Which is why, if you have a small enough graph (up to 1500 nodes), you should probably stick with using no clusters.
+Which is why, if you have a small enough graph (up to 800 nodes), you should probably stick with using no clusters.
 
 #### SynoGraph::close
 Use this to close all cluster threads explicitly.

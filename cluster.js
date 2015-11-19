@@ -81,7 +81,7 @@ class Cluster {
   }
 }
 
-Cluster.MAX_CLUSTER_SIZE = 1000;
+Cluster.MAX_CLUSTER_SIZE = 500;
 
 function createUrCluster(graph, clusters) {
   clusters = clusters || [];
@@ -119,16 +119,19 @@ function createCluster(graph, clusters) {
   if (!mx.i) return;
   cluster = new Cluster(graph);
   cluster.add(mx.i);
-  let conns = graph.getAllConnections(mx.i);
-  while (cluster.length < Cluster.MAX_CLUSTER_SIZE) {
+  let conns = graph.getAllConnections(mx.i).filter(id => !clusters.some(c => c.has(id)));
+  while (conns.length && cluster.length < Cluster.MAX_CLUSTER_SIZE) {
     for (let id of conns) {
-      if (cluster.length < Cluster.MAX_CLUSTER_SIZE && !clusters.some(c => c.has(id))) {
+      if (cluster.length < Cluster.MAX_CLUSTER_SIZE && !cluster.has(id)) {
         cluster.add(id);
       }
     }
     conns = _(conns)
     .map(id => graph.getAllConnections(id))
-    .flatten().uniq().value();
+    .flatten()
+    .uniq()
+    .filter(id => !cluster.has(id) && !clusters.some(c => c.has(id)))
+    .value();
   }
   return cluster;
 }
