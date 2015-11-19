@@ -80,7 +80,7 @@ class SynoGraph extends EventEmitter {
       var next;
       while (!(next = gen.next()).done) {
         let node = q.factory(next.value);
-        if (q.query(node)) {
+        if (node.type === q.factory.type && q.query(node)) {
           results.push(node);
           if (results.length === q.limit) {
             return results;
