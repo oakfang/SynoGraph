@@ -7,6 +7,7 @@ const uuid = require('node-uuid').v4;
 const glob = require('glob');
 const _ = require('lodash');
 const EventEmitter = require('events').EventEmitter;
+const process = require('process');
 
 const cluster = require('./cluster');
 const Selector = require('./select');
@@ -61,7 +62,7 @@ class SynoGraph extends EventEmitter {
     .then(clusterPaths => Promise.all(clusterPaths.map(file => cluster.Cluster.load(this, file))))
     .then(clusters => {
       this._clusters = clusters;
-      let urCluster = new cluster.createUrCluster(this, clusters);
+      let urCluster = cluster.createUrCluster(this, clusters);
       this._clusters.push(urCluster);
       this._clusters.forEach(c => c.init());
       this.on('change', event => {
