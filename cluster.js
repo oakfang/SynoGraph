@@ -55,6 +55,9 @@ class Cluster {
   filter(query) {
     return new Promise((resolve, reject) => {
       let nodes = this.getAllNodesOfType(query.factory.type);
+      if (typeof query.query !== 'function') {
+        query.query = new Function('x', `return x.${query.query.key} ${query.query.op} ${JSON.stringify(query.query.value)};`);
+      }
       this._worker.eval(`
         (function () {
           return JSON.stringify(${JSON.stringify(nodes)}.filter(${query.query}));
