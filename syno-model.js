@@ -105,11 +105,11 @@ module.exports = function registerNodeType(synoGraph, nodeType, properties) {
     return conns;
   }, {});
 
+  Object.defineProperty(Factory, 'type', {value: nodeType});
+
   Factory.find = function (filter, limit) {
     return {
-      query(node) {
-        return node.type === nodeType && filter(node);
-      },
+      query: filter || (() => true),
       limit: limit || 0,
       factory: Factory
     }
