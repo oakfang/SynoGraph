@@ -5,37 +5,11 @@ SynoGraph is a feature-packed GDB for use with NodeJS, natively.
 
 ### SynoGraph basic API
 
-#### SynoGraph(graph:optional[graphlib.Graph], persistTo:optional[String], clusterPattern:optional[String])
+#### SynoGraph()
 ```js
-var g = new SynoGraph(null, 'data.bson');
+const g = new SynoGraph();
 ```
 Create a new graph object.
-Passing no params to constructor will result in a new, in memory, graph.
-The first parameter is reserved for a `graphlib` graph, so pass a `null` if you don't know what that is. The second parameter is the file the SG should persist itself to after every change and before exit.
-
-Information about `clusterPattern` can be found in `Clusters API` section.
-
-#### SynoGraph.load(path:String, callback)
-```js
-SynoGraph.load('data.bson', g => {
-  // use graph here
-});
-```
-Load the SynoGraph from file.
-
-#### SynoGraph.loadSync(path:String)
-```js
-var g = SynoGraph.loadSync('data.bson');
-// use graph object here
-```
-Load the SynoGraph from file, syncly.
-
-#### SynoGraph::save(path:optional[String])
-```js
-g.save().then(() =] console.log('Data saved'));
-```
-Persist the graph manually to a path (defaults to the `persistTo` path).
-Returns a Promise.
 
 #### SynoGraph::createNode(type:String, props:Object)
 Create a graph node of type `type` with properties `props`, extended with type.
@@ -52,7 +26,7 @@ Delete a node from the graph.
 #### SynoGraph::makeEdge(source:String, dest:String, type:String, props:optional[Object])
 Create an edge of type `type` from nodeId `source` to nodeId `dest`, with optional `props` as properties.
 
-#### SynoGraph::makeEdge(source:String, dest:String, type:String)
+#### SynoGraph::removeEdge(source:String, dest:String, type:String)
 Delete an edge of type `type` from nodeId `source` to nodeId `dest`.
 
 #### SynoGraph::getNodeById(id:String)
@@ -63,6 +37,9 @@ Get props of edge of type `type` from nodeId `source` to nodeId `dest`.
 
 #### SynoGraph::getAllEdges(source:String, dest:String)
 Get props of all edges from nodeId `source` to nodeId `dest`, including their type.
+
+#### SynoGraph::getAllConnections(id:String)
+Get props of all edges emnating from, or reaching to,  nodeId `id`, including their type.
 
 
 ### SynoModel API
@@ -85,19 +62,17 @@ module.exports = modelsFactory({
 })
 
 // app.js
-const SynoGraph = require('synograph').SynoGraph;
-SynoGraph.load('data.bson', g => {
-  const models = require('./models')(g);
+const SynoGraph = require('synograph').Graph;
+const g = new SynoGraph();
+const models = require('./models')(g);
 
-  let person1 = models.Person({name: 'A', age: 3});
-  let person2 = models.Person({name: 'B', age: 6});
+let person1 = models.Person({name: 'A', age: 3});
+let person2 = models.Person({name: 'B', age: 6});
 
-  expect(!person1.hasFriends);
-  person1.friends.add(person2);
-  expect(person1.hasFriends);
-  expect(person2.friends.has(person1));
-
-});
+expect(!person1.hasFriends);
+person1.friends.add(person2);
+expect(person1.hasFriends);
+expect(person2.friends.has(person1));
 ```
 
 #### SynoModel(graph:SynoGrpah, modelType:String, properties:PropertiesObject)
@@ -160,7 +135,7 @@ g
 .of('affectedPlace')
 .of('disastersWinessed', disaster => disaster.moment.year < 2000)
 .ofAny(models.Person.find(person => person.age > 50))
-.get().then(...);
+.get();
 ```
 
 `g.select(prop:String)....of(step:String, filter:optional[function[Model->Boolean]])...of(instance:Model).get(nonUnique:optional[Boolean])`
@@ -172,8 +147,6 @@ or
 `prop` can be the name of either a property or a connection. `step` is always a connection name, with `filter` to exclude some targets. `instance` is a specific model instance,
 while `query` can either be q `Model.find(...)` call, or an Array of `Model` instances. The results are unique by default (using values for properties and id for nodes), unless passed `nonUnique` of `true`.
 
-Using `ofAny` with a `Model.find(...)` will make the following `.get()` call to return a `Promise`.
-
 #### Atomic Operations
 ```js
 let err = g.atom(() => {
@@ -184,36 +157,6 @@ let err = g.atom(() => {
 if (err) console.error('There was an error in the middle of an atomic procedure. All scoped changes were rolled back.');
 throw err;
 ```
-
-### Clusters API
-
-SynoGraph supports clusters of data, which work much like a SQL-DB index.
-The clusters work around the concept of large clusters of connected nodes,
-and on querying, the graph will use threads (yes, real ones) to search across the
-clusters. A cluster's `MAX_CLUSTER_SIZE` of nodes is `500`, and its minimum of root
-connections is `4` (otherwise, the remaining nodes are considered stranded, and go into the Ur cluster, below).
-
-The Ur cluster is a special cluster that consists of stranded and disconnected nodes.
-
-Using clusters is costly because:
-
-- On startup, the graph will create a new Ur cluster for all nodes that are in no saved clusters
-(this is O(|v|) since you check all graph nodes once).
-- This Ur cluster will be updated every time a node is added.
-- Actually clusterizing the graph might take time, as it takes up to O(v^2) actions,
-which is why it isn't part of the normal persistence procedure.
-
-Which is why, if you have a small enough graph (up to 800 nodes), you should probably stick with using no clusters.
-
-#### SynoGraph::close
-Use this to close all cluster threads explicitly.
-
-#### SynoGraph::clusterize(prefix:optional[String])
-Returns a promise to cluster the graph into files in the format of `${prefix}-${clusterIndex}.ctr`.
-`prefix` defaults to `cluster`.
-
-#### `clusterPattern`
-When creating/loading a graph, you can provide this argument in order to load any cluster files that match the glob pattern.
 
 
 ### Events
