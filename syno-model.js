@@ -16,8 +16,8 @@ function SynoModel(synoGraph, nodeType, properties) {
   function Factory (props, _id) {
     if (typeof props === 'string') {
       _id = props;
-      props = synoGraph.getNodeById(_id)
-    } else {
+      props = synoGraph.getNodeById(_id);
+    } else if (!_id) {
       _id = synoGraph.createNode(nodeType, props);
     }
     props = _.union(Object.keys(props), Array.from(properties.properties));
@@ -57,8 +57,8 @@ function SynoModel(synoGraph, nodeType, properties) {
         Object.defineProperty(instance, conn, {
           get() {
             let nodes = synoGraph.graph.outEdges(_id)
-            .filter(e => e.name === conn)
-            .map(e => synoGraph.nodeTypes[type || synoGraph.getNodeById(e.w).type](e.w));
+            .filter(e => e.type === conn)
+            .map(e => synoGraph.nodeTypes[type || synoGraph.getNodeById(e.dest).type](e.dest));
             return nodes.length ? nodes[0] : null;
           },
           set(node) {
@@ -80,8 +80,8 @@ function SynoModel(synoGraph, nodeType, properties) {
         instance[conn] = {
           get() {
             return synoGraph.graph.outEdges(_id)
-            .filter(e => e.name === conn)
-            .map(e => synoGraph.nodeTypes[type || synoGraph.getNodeById(e.w).type](e.w));
+            .filter(e => e.type === conn)
+            .map(e => synoGraph.nodeTypes[type || synoGraph.getNodeById(e.dest).type](e.dest));
           },
           add(node) {
             synoGraph.makeEdge(_id, node._id, conn);

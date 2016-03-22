@@ -1,6 +1,6 @@
 {
   "name": "synograph",
-  "version": "0.2.5",
+  "version": "0.3.0",
   "description": "A Graph DB for humans",
   "repository": {
     "type": "git",
@@ -11,13 +11,11 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "oakfang",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
-    "bson": "^0.4.19",
-    "glob": "^6.0.1",
-    "graphlib": "^1.0.7",
-    "lodash": "^3.10.1",
-    "node-uuid": "^1.4.3",
-    "webworker-threads": "^0.6.2"
+    "dumpjs": "^0.2.1",
+    "lodash": "^4.6.1",
+    "lzma": "^2.3.0",
+    "node-uuid": "^1.4.7"
   }
 }

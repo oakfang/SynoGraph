@@ -1,7 +1,8 @@
 const models = require('./syno-model');
 
 module.exports = {
-  SynoGraph: require('./syno'),
-  SynoModel: models.SynoModel,
-  modelsFactory: models.modelsFactory
+    Graph: require('./syno-graph'),
+    PersistentGraph: require('./persist-lzma'),
+    Model: models.SynoModel,
+    modelsFactory: models.modelsFactory
 };

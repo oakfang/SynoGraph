@@ -2,58 +2,65 @@
 
 const _ = require('lodash');
 
-module.exports = class Selector {
-  constructor(graph, lastStep) {
-    this._graph = graph;
-    this._path = [{step: lastStep}];
-  }
+function resolveStep(graph, node, path, cache) {
+    if (!path || !path.length) return node;
+    cache = cache || Object.create(null);
+    const level = path.length;
+    cache[level] = cache[level] || new Set();
+    cache[level].add(node._id);
 
-  of(step, filter) {
-    this._path.push({step, filter});
-    return this;
-  }
+    let nodeConnections = graph.nodeTypes[node._type].connections;
 
-  ofAny(modelQuery) {
-    this._path.push({step: modelQuery, query: true});
-    return this;
-  }
+    let nextStep = _.last(path);
+    let property = nextStep.step;
+    let filter = nextStep.filter;
 
-  _uniqify(noUnique, results) {
+    if (!nodeConnections[property] || !nodeConnections[property].collection) {
+        return resolveStep(graph, node[property], _.initial(path), cache);
+    } else {
+        let nodes = node[property].get().filter(n => !cache[level].has(n._id) && (!filter || filter(node)));
+        return _.flatten(nodes.map(node => resolveStep(graph, node, _.initial(path), cache)));
+    }
+}
+
+function resolve(graph, path, noUnique) {
+    const initStep = _.last(path);
+    let cache = {};
+    if (initStep.query && Array.isArray(initStep.step)) {
+        return uniqify(noUnique, _.flatten(initStep.step.map(step => resolveStep(graph, step, _.initial(path), cache))));
+    } else if (initStep.query) {
+        return uniqify(noUnique, graph
+                                 .queryIter(initStep.step)
+                                 .map(step => resolveStep(graph, step, _.initial(path), cache))
+                                 .reduce((results, cluster) => results.concat(cluster), []));
+    } else {
+        return uniqify(noUnique, resolveStep(graph, initStep.step, _.initial(path), cache));
+    }
+}
+
+function uniqify(noUnique, results) {
     if (noUnique) return results;
     if (results.length && typeof results[0] === 'object') return _.uniq(results, '_id');
     return _.uniq(results);
-  }
+}
 
-  get(noUnique) {
-    var node = this._path.pop();
-    var results;
-    if (node.query && Array.isArray(node.step)) {
-      results = _.flatten(node.step.map(node => this._get(node, this._path)));
-    } else if (node.query) {
-      return this._graph.query(node.step)
-      .then(nodes => {
-        let results = _.flatten(nodes.map(node => this._get(node, this._path)));
-        return this._uniqify(noUnique, results);
-      })
-    } else {
-      results = this._get(node.step, this._path);
+module.exports = class Selector {
+    constructor(graph, lastStep) {
+        this._graph = graph;
+        this._path = [{step: lastStep}];
     }
-    return this._uniqify(noUnique, results);
-  }
-
-  _get(node, path) {
-    if (!path || !path.length) return node;
-    let stepObj = _.last(path);
-    let step = stepObj.step;
-    let filter = stepObj.filter;
-    let nodeConnections = this._graph.nodeTypes[node._type].connections;
-
-    if (!nodeConnections[step] || !nodeConnections[step].collection) {
-      return this._get(node[step], _.initial(path));
-    } else {
-      let nodes = node[step].get();
-      if (filter) nodes = nodes.filter(filter);
-      return _.flatten(nodes.map(node => this._get(node, _.initial(path))));
+  
+    of(step, filter) {
+        this._path.push({step, filter});
+        return this;
     }
-  }
+  
+    ofAny(modelQuery) {
+        this._path.push({step: modelQuery, query: true});
+        return this;
+    }
+  
+    get(noUnique) {
+        return resolve(this._graph, this._path, noUnique);
+    }
 }
