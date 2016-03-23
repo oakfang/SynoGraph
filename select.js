@@ -18,7 +18,7 @@ function resolveStep(graph, node, path, cache) {
     if (!nodeConnections[property] || !nodeConnections[property].collection) {
         return resolveStep(graph, node[property], _.initial(path), cache);
     } else {
-        let nodes = node[property].get().filter(n => !cache[level].has(n._id) && (!filter || filter(node)));
+        let nodes = node[property].get().filter(n => !cache[level].has(n._id) && (!filter || filter(n)));
         return _.flatten(nodes.map(node => resolveStep(graph, node, _.initial(path), cache)));
     }
 }
