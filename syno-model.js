@@ -26,13 +26,15 @@ function SynoModel(synoGraph, nodeType, properties) {
 
     instance._id = _id;
     instance._type = nodeType;
-    instance.remove = function () {
-      synoGraph.deleteNode(_id);
-    }
+    instance.remove = () => synoGraph.deleteNode(_id);
+    instance.toJS = () => Object.keys(properties.dynamicProperties).reduce((properties, prop) => {
+      if (!typeof instance[prop] === 'function') properties[prop] = instance[prop];
+      return properties;
+    }, props.reduce((properties, prop) => {
+      properties[prop] = instance[prop];
+      return properties;
+    }, {id: _id, type: nodeType}));
 
-    Object.defineProperty(instance, '$$strength', {get() {
-      return synoGraph.graph.inEdges(_id).concat(synoGraph.graph.outEdges(_id)).length;
-    }});
     props.forEach(prop => {
       Object.defineProperty(instance, prop, {
         get() {
