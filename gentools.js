@@ -35,9 +35,9 @@ class Iterator {
 
     reduce(reducer, accumolator) {
         for (let item of this._) {
-            acc = reducer(acc, item);
+            accumolator = reducer(accumolator, item);
         }
-        return acc;
+        return accumolator;
     }
 }
 
