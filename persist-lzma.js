@@ -11,8 +11,8 @@ const SynoGraph = require('./syno-graph');
 const SAVE_INTERVAL = 3000;
 
 module.exports = class PersistentGraph extends SynoGraph {
-    constructor(persistencePath, level) {
-        super();
+    constructor(modelsScheme, persistencePath, level) {
+        super(modelsScheme);
         this._level = level || 9;
         this._persistPath = persistencePath;
         let waitForSave = null;
@@ -41,7 +41,7 @@ module.exports = class PersistentGraph extends SynoGraph {
         }).then(() => this.emit('persist-end')).catch(err => this.emit('error', err));
     }
 
-    static start(persistencePath, level) {
+    static start(modelsScheme, persistencePath, level) {
         return new Promise((resolve, reject) => {
             fs.access(persistencePath, err => {
                 if (err) return resolve(new PersistentGraph(persistencePath, level));
@@ -55,7 +55,7 @@ module.exports = class PersistentGraph extends SynoGraph {
                         cGraph._edgesTo = data._edgesTo;
                         cGraph._edgesFrom = data._edgesFrom;
                         cGraph._verticesTypes = data._verticesTypes;
-                        let pGraph = new PersistentGraph(persistencePath, level);
+                        let pGraph = new PersistentGraph(modelsScheme, persistencePath, level);
                         pGraph.graph = cGraph;
                         resolve(pGraph);
                     });

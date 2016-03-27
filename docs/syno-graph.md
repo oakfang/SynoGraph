@@ -5,9 +5,9 @@ SynoGraph is a feature-packed GDB for use with NodeJS, natively.
 
 ### SynoGraph basic API
 
-#### SynoGraph()
+#### SynoGraph(modelsScheme)
 ```js
-const g = new SynoGraph();
+const g = new SynoGraph({...});
 ```
 Create a new graph object.
 
@@ -62,9 +62,8 @@ The SynoGraph is an EventEmitter that emits `change` for every changes to the gr
 ### SynoModel API
 ```js
 // models.js
-const modelsFactory = require('synograph').modelsFactory;
 
-module.exports = modelsFactory({
+module.exports = {
   Person: {
     properties: 'name age'.split(' ')
     connections: [
@@ -76,15 +75,14 @@ module.exports = modelsFactory({
       }
     }
   }
-})
+}
 
 // app.js
 const SynoGraph = require('synograph').Graph;
-const g = new SynoGraph();
-const models = require('./models')(g);
+const g = new SynoGraph(require('./models'));
 
-let person1 = models.Person({name: 'A', age: 3});
-let person2 = models.Person({name: 'B', age: 6});
+let person1 = g.Person({name: 'A', age: 3});
+let person2 = g.Person({name: 'B', age: 6});
 
 expect(!person1.hasFriends);
 person1.friends.add(person2);

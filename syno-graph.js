@@ -8,12 +8,19 @@ const _ = require('lodash');
 const Graph = require('./core');
 const Iterator = require('./gentools');
 const Selector = require('./select');
+const models = require('./syno-model');
 
 class SynoGraph extends EventEmitter {
-    constructor() {
+    constructor(modelsScheme) {
         super();
         this.graph = new Graph();
-        this.nodeTypes = new Map();
+        this.nodeTypes = Object.create(null);
+        models.modelsFactory(modelsScheme)(this);
+        for (let type in this.nodeTypes) {
+            Object.defineProperty(this, type, {
+                value: this.nodeTypes[type]
+            });
+        }
     }
 
     createNode(type, props) {
@@ -33,7 +40,7 @@ class SynoGraph extends EventEmitter {
     }
 
     deleteNode(id) {
-        let props = this.getNodeById(id);
+        let props = this.graph.vertex(id);
         let edges = this.graph.removeVertex(id);
         this.emit('change', {type: 'DELETE-NODE', payload: {props, id, edges}});
     }
@@ -49,7 +56,9 @@ class SynoGraph extends EventEmitter {
     }
 
     getNodeById(id) {
-        return this.graph.vertex(id);
+        let v = this.graph.vertex(id); 
+        const nodeType = this.nodeTypes[v.type];
+        return nodeType(id);
     }
 
     getEdge(source, dest, type) {
@@ -65,7 +74,7 @@ class SynoGraph extends EventEmitter {
     }
 
     iterNodes() {
-        return this.graph.vertices();
+        return (new Iterator(this.graph._vertices.keys())).map(id => this.getNodeById(id));
     }
 
     select(step) {
