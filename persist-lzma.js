@@ -44,7 +44,7 @@ module.exports = class PersistentGraph extends SynoGraph {
     static start(modelsScheme, persistencePath, level) {
         return new Promise((resolve, reject) => {
             fs.access(persistencePath, err => {
-                if (err) return resolve(new PersistentGraph(persistencePath, level));
+                if (err) return resolve(new PersistentGraph(modelsScheme, persistencePath, level));
                 fs.readFile(persistencePath, (err, dataBuffer) => {
                     if (err) reject(err);
                     lzma.decompress(dataBuffer, (result, err) => {
