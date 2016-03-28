@@ -1,6 +1,6 @@
 {
   "name": "synograph",
-  "version": "0.3.5",
+  "version": "0.3.6",
   "description": "A Graph DB for humans",
   "repository": {
     "type": "git",
@@ -14,6 +14,7 @@
   "license": "MIT",
   "dependencies": {
     "dumpjs": "^0.2.1",
+    "itercol": "^1.0.3",
     "lodash": "^4.6.1",
     "lzma": "^2.3.0",
     "node-uuid": "^1.4.7"

@@ -4,9 +4,9 @@ const EventEmitter = require('events').EventEmitter;
 
 const uuid = require('node-uuid').v4;
 const _ = require('lodash');
+const Iterator = require('itercol');
 
 const Graph = require('./core');
-const Iterator = require('./gentools');
 const Selector = require('./select');
 const models = require('./syno-model');
 
@@ -87,18 +87,11 @@ class SynoGraph extends EventEmitter {
 
     queryIter(q) {
         const graph = this.graph;
-        return new Iterator(function* () {
-            let count = 0;
-            for (let nodeV of graph.verticesByType(q.factory.type)) {
-                const node = q.factory(nodeV, nodeV.id);
-                if (q.query(node)) {
-                    count++;
-                    yield node;
-                    if (count === q.limit) return;
-                }
-            }
-            return;
-        }());
+        const iter = (new Iterator(graph.verticesByType(q.factory.type)))
+            .map(nodeV => q.factory(nodeV, nodeV.id))
+            .filter(node => q.query(node));
+
+        return q.limit ? iter.take(q.limit) : iter;
     }
 
     atom(callback) {

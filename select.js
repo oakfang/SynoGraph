@@ -14,13 +14,21 @@ function resolveStep(graph, node, path, cache) {
     let nextStep = _.last(path);
     let property = nextStep.step;
     let filter = nextStep.filter;
+    let limit = nextStep.limit;
+
+    let results;
 
     if (!nodeConnections[property] || !nodeConnections[property].collection) {
-        return resolveStep(graph, node[property], _.initial(path), cache);
+        results = resolveStep(graph, node[property], _.initial(path), cache);
     } else {
-        let nodes = node[property].get().filter(n => !cache[level].has(n._id) && (!filter || filter(n)));
-        return _.flatten(nodes.map(node => resolveStep(graph, node, _.initial(path), cache)));
+        results = node[property]
+            .getIter()
+            .filter(n => !cache[level].has(n._id) && (!filter || filter(n)))
+            .map(node => resolveStep(graph, node, _.initial(path), cache))
+            .reduce((res, nodes) => res.concat(nodes), []);
     }
+
+    return limit ? _.take(results, limit) : results;
 }
 
 function resolve(graph, path, noUnique) {
@@ -50,8 +58,8 @@ module.exports = class Selector {
         this._path = [{step: lastStep}];
     }
   
-    of(step, filter) {
-        this._path.push({step, filter});
+    of(step, filter, limit) {
+        this._path.push({step, filter, limit});
         return this;
     }
   

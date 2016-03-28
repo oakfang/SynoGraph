@@ -1,6 +1,7 @@
 'use strict';
 
 const _ = require('lodash');
+const Iterator = require('itercol');
 
 function SynoModel(synoGraph, nodeType, properties) {
   properties = properties || {};
@@ -82,6 +83,11 @@ function SynoModel(synoGraph, nodeType, properties) {
         instance[conn] = {
           get() {
             return synoGraph.graph.outEdges(_id)
+            .filter(e => e.type === conn)
+            .map(e => synoGraph.getNodeById(e.dest));
+          },
+          getIter() {
+            return (new Iterator(synoGraph.graph.outEdges(_id)))
             .filter(e => e.type === conn)
             .map(e => synoGraph.getNodeById(e.dest));
           },
