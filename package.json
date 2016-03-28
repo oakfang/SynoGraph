@@ -1,6 +1,6 @@
 {
   "name": "synograph",
-  "version": "0.3.6",
+  "version": "0.3.7",
   "description": "A Graph DB for humans",
   "repository": {
     "type": "git",

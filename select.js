@@ -16,19 +16,18 @@ function resolveStep(graph, node, path, cache) {
     let filter = nextStep.filter;
     let limit = nextStep.limit;
 
-    let results;
-
+    
     if (!nodeConnections[property] || !nodeConnections[property].collection) {
-        results = resolveStep(graph, node[property], _.initial(path), cache);
+        let results = resolveStep(graph, node[property], _.initial(path), cache);
+        return limit ? results.slice(0, limit) : results;
     } else {
-        results = node[property]
+        return node[property]
             .getIter()
             .filter(n => !cache[level].has(n._id) && (!filter || filter(n)))
+            .take(limit ? limit : -1)
             .map(node => resolveStep(graph, node, _.initial(path), cache))
             .reduce((res, nodes) => res.concat(nodes), []);
     }
-
-    return limit ? _.take(results, limit) : results;
 }
 
 function resolve(graph, path, noUnique) {
