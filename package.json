@@ -1,22 +1,27 @@
 {
   "name": "synograph",
-  "version": "0.3.7",
+  "version": "0.4.0",
   "description": "A Graph DB for humans",
   "repository": {
     "type": "git",
     "url": "https://github.com/oakfang/SynoGraph"
   },
-  "main": "index.js",
+  "main": "lib/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "nyc ava -v",
+    "report": "nyc --reporter=html ava -v && open coverage/index.html"
   },
   "author": "oakfang",
   "license": "MIT",
   "dependencies": {
+    "co": "^4.6.0",
     "dumpjs": "^0.2.1",
-    "itercol": "^1.0.3",
-    "lodash": "^4.6.1",
-    "lzma": "^2.3.0",
-    "node-uuid": "^1.4.7"
+    "lzma": "^2.3.2",
+    "then-fs": "^2.0.0",
+    "uuid": "^3.0.1"
+  },
+  "devDependencies": {
+    "ava": "^0.17.0",
+    "nyc": "^10.0.0"
   }
 }

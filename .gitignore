@@ -1,7 +1,9 @@
 # Logs
 logs
 *.log
+*.g
 npm-debug.log*
+.nyc_output
 
 # Runtime data
 pids
