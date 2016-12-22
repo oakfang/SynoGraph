@@ -96,7 +96,7 @@ test('Interactions', t => {
 test('Query', t => {
   const { Person } = t.context.models;
   for (const p of Person.find()) {
-    t.is(p.name, Person.get(p.id).name);
+    t.is(p.name, Person(p.id).name);
   }
 
   t.is(Array.from(Person.find(({ age }) => age > 6)).length, 1);

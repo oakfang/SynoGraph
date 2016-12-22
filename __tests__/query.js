@@ -1,7 +1,45 @@
 import test from 'ava';
 import Graph from '../lib/core';
 import modeler from '../lib/model';
-import query from '../lib/query';
+import queryHandler from '../lib/query';
+
+const query = queryHandler('foobar');
+const falseQ = queryHandler('barfoo');
+
+const schema = {
+  select: {
+    properties: ['name', 'id'],
+    connections: {
+      visited: {
+        select: {
+          properties: ['name'],
+        },
+        limit: 1,
+      }
+    },
+  },
+  from: [
+    'friends',
+    {
+      what: 'friends',
+      filter: {
+        $contains: {
+          name: 'a',
+        },
+      },
+      limit: 5,
+    },
+    'visited',
+    {
+      type: 'Place',
+      filter: {
+        $starts: {
+          name: 'u'
+        },
+      },
+    },
+  ],
+};
 
 test.beforeEach(t => {
   const g = new Graph();
@@ -71,34 +109,19 @@ test.beforeEach(t => {
 });
 
 test('Apply schema to query', t => {
-  const { g } = t.context;
-  const schema = {
-    select: {
-      properties: ['name', 'id'],
-      connections: {
-        
-      },
-    },
-    from: [
-      'friends',
-      {
-        what: 'friends',
-        filter: {
-          name: {
-            $inc: 'a',
-          },
-        },
-        limit: 5,
-      },
-      'visited',
-      {
-        type: 'Place',
-        filter: {
-          name: {
-            $starts: 'u',
-          },
-        },
-      },
-    ],
-  };
+  const g = t.context;
+  const results = query.query(g, query.create(schema));
+  t.is(results.length, 4);
+  t.falsy(results.find(({name}) => name === 'buzz'));
+});
+
+test('Fail to query bad token', t => {
+  const g = t.context;
+  const q = falseQ.create(schema);
+  try {
+    query.query(q);
+    t.fail('Should have failed');
+  } catch (e) {
+    t.pass('Bad token failed');
+  }
 });

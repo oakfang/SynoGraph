@@ -16,6 +16,8 @@
   "dependencies": {
     "co": "^4.6.0",
     "dumpjs": "^0.2.1",
+    "json-filter": "0.0.2",
+    "json-predicate": "^0.9.5",
     "lzma": "^2.3.2",
     "then-fs": "^2.0.0",
     "uuid": "^3.0.1"
